@@ -7,8 +7,21 @@ pub struct Field {
     player_turn: Player,
 }
 
+pub struct Element {
+    position: u8,
+    typie: ElementType,
+}
 
-pub enum Element {
+impl Element {
+    fn new(position: u8, typie: ElementType) -> Element {
+        return Element {
+            position,
+            typie
+        }
+    }
+}
+
+pub enum ElementType {
 Empty(u8),
 Nought(u8),
 Cross(u8)
@@ -72,4 +85,18 @@ impl Field {
     pub fn place_tile(pos: u8) -> Message {
         return Message::Success;
     }
+    
+    pub fn new_game(&self) {
+        self.positions.clear();
+        for i in [1..10] {
+            positions.push(Element::new(i,ElementType::Empty));
+        }
+    }
+
+    fn get_element_at_pos(&self, pos: u8) -> Element {
+        //The elements are ordered per definition, so we can use direct access
+        return self.positions[pos-1];
+    }
+
+
 }
