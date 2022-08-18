@@ -1,3 +1,7 @@
+use crate::field::Field;
+pub mod field;
+
 fn main() {
-    println!("Hello, there!");
+let f = Field::new();
+f.print_field();
 }
