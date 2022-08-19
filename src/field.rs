@@ -55,7 +55,7 @@ NoPlayer
 }
 
 impl Player {
-    fn to_string(&self) -> String {
+    pub fn to_string(&self) -> String {
         return match self {
         Player::Player1 => String::from("Player 1"),
         Player::Player2 => String::from("Player 2"),
@@ -89,8 +89,7 @@ impl Field {
 
     pub fn print_field(&self) {
         print!("{esc}[2J{esc}[1;1H", esc = 27 as char);        
-        println!("Tic Tac Toe Game");
-        println!("It is {}'s turn!",self.player_turn.to_string());
+        println!("Tic Tac Toe Game\n\n");
         println!("     ##     ##    ");
         println!("  {}  ##  {}  ##  {} ",self.g_pos(1).to_string(),self.g_pos(2).to_string(),self.g_pos(3).to_string());
         println!("     ##     ##    ");
@@ -112,8 +111,8 @@ impl Field {
 
 
     pub fn place_token(&mut self, pos: u8, p: Player) -> Message {
-        self.positions[pos as usize].typie=p.get_token();
-        self.positions[pos as usize].owner=p;
+        self.positions[(pos-1) as usize].typie=p.get_token();
+        self.positions[(pos-1) as usize].owner=p;
         return Message::Success;
     }
     
