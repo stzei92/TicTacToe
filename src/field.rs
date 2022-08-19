@@ -10,21 +10,42 @@ pub struct Field {
 pub struct Element {
     position: u8,
     typie: ElementType,
+    owner: Player,
 }
 
 impl Element {
     fn new(position: u8, typie: ElementType) -> Element {
         return Element {
             position,
-            typie
+            typie,
+            owner: Player::NoPlayer,
         }
+    }
+
+    fn to_string(&self) -> String {
+        return match self.typie {
+            ElementType::Empty => String::from(format!("{}",self.position)),
+            _ => self.owner.get_token().to_string()
+            
+        }
+
     }
 }
 
 pub enum ElementType {
-Empty(u8),
-Nought(u8),
-Cross(u8)
+Empty,
+Nought,
+Cross
+}
+
+impl ElementType {
+    fn to_string(&self) -> String {
+        return match self {
+            ElementType::Nought => String::from("O"),
+            ElementType::Cross => String::from("X"),
+            _ => String::from("-")
+        }
+    }
 }
 
 pub enum Player {
@@ -35,11 +56,19 @@ NoPlayer
 
 impl Player {
     fn to_string(&self) -> String {
-        return match &self {
+        return match self {
         Player::Player1 => String::from("Player 1"),
         Player::Player2 => String::from("Player 2"),
         _ => String::from("No One")
         };
+    }
+
+    fn get_token(&self) -> ElementType{
+        return match self {    
+            Player::Player1 => ElementType::Nought,
+            Player::Player2 => ElementType::Cross,
+            _ => ElementType::Empty
+        }
     }
 }
 
@@ -63,17 +92,17 @@ impl Field {
         println!("Tic Tac Toe Game");
         println!("It is {}'s turn!",self.player_turn.to_string());
         println!("     ##     ##    ");
-        println!("  {}  ##  {}  ##  {} ",1,2,3);
+        println!("  {}  ##  {}  ##  {} ",self.g_pos(1).to_string(),self.g_pos(2).to_string(),self.g_pos(3).to_string());
         println!("     ##     ##    ");
         println!("###################");
         println!("     ##     ##    ");
-        println!("  {}  ##  {}  ##  {} ",4,5,6);
+        println!("  {}  ##  {}  ##  {} ",self.g_pos(4).to_string(),self.g_pos(5).to_string(),self.g_pos(6).to_string());
         println!("     ##     ##    ");
         println!("###################");
         println!("     ##     ##    ");
-        println!("  {}  ##  {}  ##  {} ",7,8,9);
+        println!("  {}  ##  {}  ##  {} ",self.g_pos(7).to_string(),self.g_pos(8).to_string(),self.g_pos(9).to_string());
         println!("     ##     ##    ");
-        println!("\n\n Please enter your guess: ");
+//        println!("\n\n Please enter your move: ");
 
     }
 
@@ -82,20 +111,23 @@ impl Field {
     }
 
 
-    pub fn place_tile(pos: u8) -> Message {
+    pub fn place_token(&mut self, pos: u8, p: Player) -> Message {
+        self.positions[pos as usize].typie=p.get_token();
+        self.positions[pos as usize].owner=p;
         return Message::Success;
     }
     
-    pub fn new_game(&self) {
+    pub fn new_game(&mut self) {
         self.positions.clear();
-        for i in [1..10] {
-            positions.push(Element::new(i,ElementType::Empty));
+        for i in 1..10 {
+           self.positions.push(Element::new(i,ElementType::Empty));
         }
     }
 
-    fn get_element_at_pos(&self, pos: u8) -> Element {
+    fn g_pos(&self, pos: u8) -> &Element {
         //The elements are ordered per definition, so we can use direct access
-        return self.positions[pos-1];
+        let index: usize = (pos-1) as usize;
+        return &(self.positions[index]);
     }
 
 
