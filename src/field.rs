@@ -39,19 +39,27 @@ Cross
 }
 
 impl ElementType {
-    fn to_string(&self) -> String {
+   pub fn to_string(&self) -> String {
         return match self {
             ElementType::Nought => String::from("O"),
             ElementType::Cross => String::from("X"),
             _ => String::from("-")
         }
     }
+    //GWV - get win value
+    fn gwv(&self) -> i8 {
+        return match self {
+            ElementType::Nought => 1,
+            ElementType::Cross => -1,
+            _ => 0,
+        };
+    }
 }
 
 pub enum Player {
 Player1,
 Player2,
-NoPlayer
+NoPlayer,
 }
 
 impl Player {
@@ -63,7 +71,7 @@ impl Player {
         };
     }
 
-    fn get_token(&self) -> ElementType{
+  pub fn get_token(&self) -> ElementType{
         return match self {    
             Player::Player1 => ElementType::Nought,
             Player::Player2 => ElementType::Cross,
@@ -105,15 +113,58 @@ impl Field {
 
     }
 
-    pub fn check_win_condition() -> Player {
-        return Player::Player1;
-    }
+	pub fn check_win_condition(&self) -> Option<Player> {
+		let mut sums: Vec<i8> = Vec::new();
+		//Horizontal
+		sums.push(self.g_pos(1).typie.gwv()+self.g_pos(2).typie.gwv()+self.g_pos(3).typie.gwv());
+		sums.push(self.g_pos(4).typie.gwv()+self.g_pos(5).typie.gwv()+self.g_pos(6).typie.gwv());
+		sums.push(self.g_pos(7).typie.gwv()+self.g_pos(8).typie.gwv()+self.g_pos(9).typie.gwv());
+		
+		//Vertical
+		sums.push(self.g_pos(1).typie.gwv()+self.g_pos(4).typie.gwv()+self.g_pos(7).typie.gwv());
+		sums.push(self.g_pos(2).typie.gwv()+self.g_pos(5).typie.gwv()+self.g_pos(8).typie.gwv());
+		sums.push(self.g_pos(3).typie.gwv()+self.g_pos(6).typie.gwv()+self.g_pos(9).typie.gwv());
+		
+		//Diagonal
+		sums.push(self.g_pos(1).typie.gwv()+self.g_pos(5).typie.gwv()+self.g_pos(9).typie.gwv());
+		sums.push(self.g_pos(3).typie.gwv()+self.g_pos(5).typie.gwv()+self.g_pos(7).typie.gwv());
+		
+                let mut nums = 0;
+                for i in 1..10 {
+                    nums += self.g_pos(i).typie.gwv().abs();
+                }
+
+		for s in sums {
+		    if s==3 {
+		        return Some(Player::Player1);
+		    }
+		    else if s==-3 {
+		        return Some(Player::Player2);
+		    }
+                    else if nums == 9 {
+                        return Some(Player::NoPlayer);
+                    }
+		}
+
+		return None;
+	    }
 
 
     pub fn place_token(&mut self, pos: u8, p: Player) -> Message {
-        self.positions[(pos-1) as usize].typie=p.get_token();
-        self.positions[(pos-1) as usize].owner=p;
-        return Message::Success;
+      
+        if pos>9 | pos<1 {
+            return Message::WrongNumber;
+        }
+        if self.poitions[(pos-1) as usize].owner==Player::NoPlayer {
+            self.positions[(pos-1) as usize].typie=p.get_token();
+            self.positions[(pos-1) as usize].owner=p;
+            return Message::Success;
+        }
+        else {
+            return Message::Occupied
+        }
+
+
     }
     
     pub fn new_game(&mut self) {
